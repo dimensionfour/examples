@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>D4 demo-dashboard</title>
+    <link rel="shortcut icon" type="image/png" href="favicon-16x16.png" />
+</head>
+
+<body>
+    <div @mounted="setInterval(function() {store.updateSpacesAndPoints()}, 5000);"></div>
+    <!-- App -->
+    <div class="container" style="max-width: 540px">
+        <!-- Navbar -->
+        <nav class="navbar navbar-light mb-2">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img src="d4_logo.svg" alt="" width="60" class="d-inline-block align-text-top me-2">
+                    Demo Dashboard
+                </a>
+                <form class="d-flex">
+                    <button class="btn btn-outline-success" @click.prevent="" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">Settings</button>
+            </div>
+        </nav>
+
+        <!-- Content -->
+        <div class="row mb-2" v-for="space in store.spacesAndPoints" :key="space.id">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body" style="background-color: rgb(209, 209, 209);">
+                        <h2 class="card-text"> {{ space.name }}</h2>
+
+                        <p class="fw-light">{{space.id}}</p>
+                        <div class="card" v-for="point in space.points" :key="point.id">
+                            <div class="card-body">
+                                <h4 class="card-text"> {{ point.name }}</h4>
+                                <p class="fw-light"> {{point.id}}</p>
+                                <div v-for="signal in point.signalsConnection.edges" :key="signal.node.id">
+                                    {{signal.node.data.rawValue}}
+                                    {{signal.node.unit}}
+                                    <span style="color: red;" v-if="signal.node.data.rawValue > 38">WARNING</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <label for="exampleFormControlTextarea1" class="form-label">Tenant-id</label>
+                    <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
+                        v-model="tenantId"></textarea>
+                    <label for="exampleFormControlTextarea1" class="form-label">Tenant-key</label>
+                    <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
+                        v-model="tenantKey"></textarea>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="saveSettingsToLocalStorage">Save
+                        changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <script type="module">
+        import { createApp, reactive } from 'https://unpkg.com/petite-vue@0.2.2/dist/petite-vue.es.js'
+
+        const store = reactive({
+            spacesAndPoints: "",
+            tenantId: "",
+            tenantKey: "",
+            count: 0,
+            updateSpacesAndPoints: function () {
+                console.log("Updating...");
+                store.getSpacesAndPoints()
+                    .then(data => {
+                        store.spacesAndPoints = data["data"]["spaces"];
+                        console.log(store.spacesAndPoints);
+                        for (const a of store.spacesAndPoints) {
+                            console.log(a.name);
+                            for (const b of a.points) {
+                                console.log(b.name)
+                                let counter = 0;
+                                for (const c of b.signalsConnection.edges) {
+                                    console.log(counter, c.node.data.rawValue);
+                                    console.log(counter, c.node)
+                                    counter++;
+                                };
+                            }
+                        }
+                    });
+            },
+            getSpacesAndPoints: async function () {
+                const query = `
+                query {
+                    spaces {
+                        id
+                        name
+                        points { 
+                            id
+                            name 
+                            signalsConnection(paginate:{first:5} sort:{field:"timestamp" order:DESC}) {
+                                edges {
+                                    node {
+                                        id
+                                        type
+                                        unit
+                                        data {
+                                            rawValue
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }`;
+                const response = await fetch(BASE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "x-tenant-id": tenantId,
+                        "x-tenant-key": tenantKey
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+                return response.json();
+            }
+        })
+
+        const BASE_URL = 'https://iot.dimensionfour.io/graph';
+        if (tenantId && tenantKey) {
+            store.updateSpacesAndPoints();
+        }
+
+        createApp({
+            store,
+            saveSettingsToLocalStorage() {
+                window.localStorage.setItem("tenantId", tenantId) || "";
+                window.localStorage.setItem("tenantKey", tenantKey) || "";
+            }
+        }).mount()
+    </script>
+
+</body>
+
+<script>
+    let tenantId = window.localStorage.getItem("tenantId");
+    let tenantKey = window.localStorage.getItem("tenantKey");
+</script>
+
+</html>
