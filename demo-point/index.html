@@ -95,10 +95,10 @@
 
                     <label for="exampleFormControlTextarea1" class="form-label">Tenant-id</label>
                     <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                        v-model="tenantId"></textarea>
+                        v-model="store.tenantId"></textarea>
                     <label for="exampleFormControlTextarea1" class="form-label">Tenant-key</label>
                     <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                        v-model="tenantKey"></textarea>
+                        v-model="store.tenantKey"></textarea>
 
                 </div>
                 <div class="modal-footer">
@@ -119,6 +119,7 @@
         const store = reactive({
             points: "",
             point: "",
+            pointId: "",
             tenantId: "",
             tenantKey: "",
             selectedUnit: "",
@@ -147,8 +148,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        "x-tenant-id": tenantId,
-                        "x-tenant-key": tenantKey
+                        "x-tenant-id": store.tenantId,
+                        "x-tenant-key": store.tenantKey
                     },
                     body: JSON.stringify({ query: gqlstring })
                 });
@@ -174,15 +175,18 @@
         store.setUnit(window.sessionStorage.getItem("selectedUnit") || "CELSIUS_DEGREES");
         store.setType(window.sessionStorage.getItem("selectedType") || "TYPE1");
         store.setValue(window.sessionStorage.getItem("selectedValue") || "20");
+        store.tenantId = window.localStorage.getItem("tenantId") || "";
+        store.tenantKey = window.localStorage.getItem("tenantKey") || "";
+        store.pointId = window.sessionStorage.getItem("pointId") || "";
 
 
         const BASE_URL = 'https://iot.dimensionfour.io/graph';
-        if (tenantId && tenantKey) {
+        if (store.tenantId && store.tenantKey) {
             getPoints()
                 .then(data => {
                     store.points = data["data"]["points"];
                     for (const point of store.points) {
-                        if (point.id == pointId) {
+                        if (point.id == store.pointId) {
                             store.point = point;
                         }
                     }
@@ -201,8 +205,8 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    "x-tenant-id": tenantId,
-                    "x-tenant-key": tenantKey
+                    "x-tenant-id": store.tenantId,
+                    "x-tenant-key": store.tenantKey
                 },
                 body: JSON.stringify({ query: query })
             });
@@ -211,8 +215,8 @@
         createApp({
             store,
             saveSettingsToLocalStorage() {
-                window.localStorage.setItem("tenantId", tenantId);
-                window.localStorage.setItem("tenantKey", tenantKey);
+                window.localStorage.setItem("tenantId", store.tenantId);
+                window.localStorage.setItem("tenantKey", store.tenantKey);
             },
         }).mount()
     </script>
@@ -220,10 +224,6 @@
 </body>
 
 <script>
-    const tenantId = window.localStorage.getItem("tenantId") || "";
-    const tenantKey = window.localStorage.getItem("tenantKey") || "";
-    const pointId = window.sessionStorage.getItem("pointId") || "";
-    const type = window.sessionStorage.getItem("type") || "";
     const UNITS = [
         "CELSIUS_DEGREES",
         "FAHRENHEIT_DEGREES",
