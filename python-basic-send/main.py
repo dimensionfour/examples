@@ -32,7 +32,7 @@ while True:
         "signals": [
             {
                 "value": str(round((random.randint(1800,2200) / 100.0),2)),
-                "unit": "°C",
+                "unit": "CELSIUS_DEGREES",
                 "type":"Temperature",
                 "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S") + "+00:00"
             }

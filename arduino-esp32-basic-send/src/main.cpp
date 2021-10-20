@@ -43,7 +43,7 @@ void sendData() {
   dtostrf(measuredtemp, 0, 2, temp);
   
   sig1["value"] = temp;
-  sig1["unit"] = "ºC";
+  sig1["unit"] = "CELSIUS_DEGREES";
   sig1["type"] = "Temperature";
   
   getLocalTime(&timeinfo);
