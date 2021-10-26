@@ -73,6 +73,14 @@
                                 @change="store.setValue($event.target.value)">
                         </div>
                     </div>
+                    <div class="row">
+                        <label class="form-label">textValue (keep empty to use slider)</label>
+
+                        <div class="col-12  d-flex align-items-center">
+                            <input type="text" class="form-control" v-model="store.textValue"
+                                @change="store.setTextValue($event.target.value)">
+                        </div>
+                    </div>
                     <div class="d-grid gap-2">
                         <button class="btn btn-primary mt-3" type="button" @click="store.sendPayload()">Send</button>
                     </div>
@@ -125,8 +133,16 @@
             selectedUnit: "",
             selectedType: "",
             selectedValue: "",
+            textValue: "",
             count: 0,
             sendPayload: async function () {
+                const valueorTextValue = function () {
+                    if (store.textValue != "") {
+                        return store.textValue;
+                    } else {
+                        return store.selectedValue;
+                    }
+                };
                 const gqlstring = `
                     mutation { 
                         signal { 
@@ -134,7 +150,7 @@
                                 pointId: "${store.point.id}" 
                                 signals: [
                                     {
-                                        value: "${store.selectedValue}" 
+                                        value: "${valueorTextValue()}" 
                                         unit: ${store.selectedUnit}
                                         type: "${store.selectedType}"
                                     }
@@ -170,11 +186,16 @@
                 store.selectedValue = value;
                 window.sessionStorage.setItem("selectedValue", store.selectedValue);
             },
+            setTextValue(value) {
+                store.textValue = value;
+                window.sessionStorage.setItem("textValue", store.textValue);
+            },
         })
 
         store.setUnit(window.sessionStorage.getItem("selectedUnit") || "CELSIUS_DEGREES");
         store.setType(window.sessionStorage.getItem("selectedType") || "TYPE1");
         store.setValue(window.sessionStorage.getItem("selectedValue") || "20");
+        store.setTextValue(window.sessionStorage.getItem("textValue") || "");
         store.tenantId = window.localStorage.getItem("tenantId") || "";
         store.tenantKey = window.localStorage.getItem("tenantKey") || "";
         store.pointId = window.sessionStorage.getItem("pointId") || "";
