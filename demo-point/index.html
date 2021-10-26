@@ -57,7 +57,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Unit</label>
+                        <label class="form-label">Type</label>
                         <select name="type" class="form-select" v-model="store.selectedType"
                             @change="store.setType($event.target.value)">
                             <option v-for="TYPE in TYPES" :value=TYPE> {{ TYPE }} </option>
@@ -252,6 +252,8 @@
         "UNKNOWN",
     ]
     const TYPES = [
+        "temperature",
+        "humidity",
         "TYPE1",
         "TYPE2",
         "TYPE3"
