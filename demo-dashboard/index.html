@@ -96,9 +96,9 @@
                     .then(data => {
                         store.spacesAndPoints = data["data"]["spaces"]["nodes"];
                         for (const a of store.spacesAndPoints) {
-                            for (const b of a.points) {
+                            for (const b of a.points.nodes) {
                                 let counter = 0;
-                                for (const c of b.signalsConnection.edges) {
+                                for (const c of b.signals.edges) {
                                     c.node.number = counter;
                                     counter++;
                                 };
