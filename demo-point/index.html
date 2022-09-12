@@ -205,7 +205,7 @@
         if (store.tenantId && store.tenantKey) {
             getPoints()
                 .then(data => {
-                    store.points = data["data"]["points"];
+                    store.points = data["data"]["points"]["nodes"];
                     for (const point of store.points) {
                         if (point.id == store.pointId) {
                             store.point = point;
@@ -218,8 +218,10 @@
             const query = `
                 query {
                     points { 
-                        id
-                        name 
+                        nodes {
+                            id
+                            name 
+                        }
                     }
                 }`;
             const response = await fetch(BASE_URL, {

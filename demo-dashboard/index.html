@@ -35,11 +35,11 @@
                         <h2 class="card-text"> {{ space.name }}</h2>
 
                         <p class="fw-light">{{space.id}}</p>
-                        <div class="card" v-for="point in space.points" :key="point.id">
+                        <div class="card" v-for="point in space.points.nodes" :key="point.id">
                             <div class="card-body">
                                 <h4 class="card-text"> {{ point.name }}</h4>
                                 <p class="fw-light"> {{point.id}}</p>
-                                <div v-for="signal in point.signalsConnection.edges" :key="signal.node.number">
+                                <div v-for="signal in point.signals.edges" :key="signal.node.number">
                                     {{signal.node.data.rawValue}}
                                     {{signal.node.unit}}
                                     <span style="color: red;" v-if="signal.node.data.rawValue > 38">WARNING</span>
@@ -94,7 +94,7 @@
                 console.log("Updating...");
                 store.getSpacesAndPoints()
                     .then(data => {
-                        store.spacesAndPoints = data["data"]["spaces"];
+                        store.spacesAndPoints = data["data"]["spaces"]["nodes"];
                         for (const a of store.spacesAndPoints) {
                             for (const b of a.points) {
                                 let counter = 0;
@@ -110,19 +110,23 @@
                 const query = `
                 query {
                     spaces {
-                        id
-                        name
-                        points { 
+                        nodes {
                             id
-                            name 
-                            signalsConnection(paginate:{first:5} sort:{field:"createdAt" order:DESC}) {
-                                edges {
-                                    node {
-                                        id
-                                        type
-                                        unit
-                                        data {
-                                            rawValue
+                            name
+                            points {
+                                nodes {
+                                    id
+                                    name 
+                                    signals(paginate:{first:5} sort:{field:"createdAt" order:DESC}) {
+                                        edges {
+                                            node {
+                                                id
+                                                type
+                                                unit
+                                                data {
+                                                    rawValue
+                                                }
+                                            }
                                         }
                                     }
                                 }
