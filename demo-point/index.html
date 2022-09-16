@@ -6,84 +6,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <title>D4 demo-point</title>
+    <title>Demo Point</title>
     <link rel="shortcut icon" type="image/png" href="favicon-16x16.png" />
 </head>
 
 <body>
-    <!-- App -->
-    <div class="container" style="max-width: 540px">
-        <!-- Navbar -->
-        <nav class="navbar navbar-light mb-2">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    <img src="d4_logo.svg" alt="" width="60" class="d-inline-block align-text-top me-2">
-                    Demo Point
-                </a>
-                <form class="d-flex">
-                    <button class="btn btn-outline-success" @click.prevent="" data-bs-toggle="modal"
-                        data-bs-target="#exampleModal">Settings</button>
-            </div>
-        </nav>
-
-        <!-- Content -->
-        <div class="row mb-2">
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    Point
+    <!-- Navbar -->
+    <div class="container mt-4">
+        <div class="navbar navbar-light mb-2">
+            <nav class="container-fluid">
+                <div class="logoContainer">
+                    <div class="logo">
+                        <a class="navbar-brand" href="#">
+                            <img src="d4_logo.svg" alt="" width="140" class="d-inline-block" />
+                        </a>
+                    </div>
+                    <div class="logoText">
+                        Demo Point
+                    </div>
+                </div>
+                <button class="myButtonOutlined " @click.prevent="" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal">
+                    Settings
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                    <li v-for="point in store.points" :key="point.id">
-                        <a class="dropdown-item" @click="store.setPoint(point)">{{point.name}}</a>
-                    </li>
-                </ul>
-            </div>
+            </nav>
         </div>
-        <div class="row"></div>
-        <div class="col">
-            <div class="card">
-                <div class="card-body" style="background-color: rgb(209, 209, 209);">
-                    <h2 class="card-text"> {{store.point.name}} </h2>
+    </div>
 
-                    <p class="fw-light">{{store.point.id}}</p>
-                    <div class="mb-3">
-                        <label class="form-label">Unit</label>
-                        <select name="unit" class="form-select" v-model="store.selectedUnit"
-                            @change="store.setUnit($event.target.value)">
-                            <option selected value=store.selectedUnit> {{store.selectedUnit}} </option>
-                            <option v-for="UNIT in UNITS" :value=UNIT> {{ UNIT }}
-                            </option>
-                        </select>
+    <!-- App -->
+    <div class="container">
+        <!-- Content -->
+        <div class="card border-0">
+            <div class="card-body">
+                <h2 class="card-text"> {{store.pointName}} </h2>
+                <p class="fw-light">{{store.pointId}}</p>
+                <div class="form-floating mb-4">
+                    <select name="unit" id="unitSelect" class="form-select" v-model="store.selectedUnit"
+                        @change="store.setUnit($event.target.value)">
+                        <option selected value=store.selectedUnit> {{store.selectedUnit}} </option>
+                        <option v-for="UNIT in UNITS" :value=UNIT> {{ UNIT }}</option>
+                    </select>
+                    <label for="unitSelect" class="form-label">Unit</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="text" class="form-control" id="typeText" v-model="store.typeValue"
+                        @change="store.setType($event.target.value)">
+                    </input>
+                    <label for="typeText" class="form-label">Type</label>
+                </div>
+                <div class="form-floating mb-5">
+                    <input type="text" class="form-control" id="valueInput" v-model="store.textValue"
+                        @change="store.setTextValue($event.target.value)">
+                    </input>
+                    <label for="valueInput" class="form-label">Value</label>
+                </div>
+                <div class="row mb-5">
+                    <div class="align-items-center">
+                        <input type="range" class="form-range" v-model="store.selectedValue"
+                            @change="store.setTextValue($event.target.value)">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Type</label>
-                        <select name="type" class="form-select" v-model="store.selectedType"
-                            @change="store.setType($event.target.value)">
-                            <option v-for="TYPE in TYPES" :value=TYPE> {{ TYPE }} </option>
-                        </select>
-                    </div>
-                    <div class="row">
-                        <label class="form-label">Value</label>
-                        <div class="col-2">
-                            <h2>{{store.selectedValue}} </h2>
-                        </div>
-                        <div class="col-10  d-flex align-items-center">
-                            <input type="range" class="form-range" v-model="store.selectedValue"
-                                @change="store.setValue($event.target.value)">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label class="form-label">textValue (keep empty to use slider)</label>
-
-                        <div class="col-12  d-flex align-items-center">
-                            <input type="text" class="form-control" v-model="store.textValue"
-                                @change="store.setTextValue($event.target.value)">
-                        </div>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-primary mt-3" type="button" @click="store.sendPayload()">Send</button>
-                    </div>
+                </div>
+                <div class="d-grid gap-2 mb-2">
+                    <button class="myButton" @click="store.sendPayload()">Send</button>
                 </div>
             </div>
         </div>
@@ -96,23 +80,35 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+                    <h3 class="modal-title" id="exampleModalLabel">Settings</h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-
-                    <label for="exampleFormControlTextarea1" class="form-label">Tenant-id</label>
-                    <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                        v-model="store.tenantId"></textarea>
-                    <label for="exampleFormControlTextarea1" class="form-label">Tenant-key</label>
-                    <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                        v-model="store.tenantKey"></textarea>
-
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="tenantIdInput" rows="3" v-model="store.pointName">
+                        </input>
+                        <label for="tenantIdInput" class="form-label">Device name</label>
+                    </div>
+                    <hr />
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="tenantIdInput" rows="3" v-model="store.tenantId">
+                        </input>
+                        <label for="tenantIdInput" class="form-label">Tenant-id</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="tenantKeyInput" rows="3" v-model="store.tenantKey">
+                        </input>
+                        <label for="tenantKeyInput" class="form-label">Tenant-key</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="pointId" rows="3" v-model="store.pointId">
+                        </input>
+                        <label for="tenantKeyInput" class="form-label">PointId</label>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" @click="saveSettingsToLocalStorage">Save
-                        changes</button>
+                    <button class="myButtonOutlined" data-bs-dismiss="modal">Close</button>
+                    <button class="myButton" @click="store.saveSettingsToLocalStorage">Save</button>
                 </div>
             </div>
         </div>
@@ -124,19 +120,18 @@
     <script type="module">
         import { createApp, reactive } from 'https://unpkg.com/petite-vue@0.2.2/dist/petite-vue.es.js'
 
+        const BASE_URL = 'https://iot.dimensionfour.io/graph';
+
         const store = reactive({
-            points: "",
-            point: "",
             pointId: "",
             tenantId: "",
             tenantKey: "",
             selectedUnit: "",
-            selectedType: "",
-            selectedValue: "",
             textValue: "",
+            typeValue: "",
             count: 0,
-            sendPayload: async function () {
-                const valueorTextValue = function () {
+            sendPayload: async () => {
+                const valueorTextValue = () => {
                     if (store.textValue != "") {
                         return store.textValue;
                     } else {
@@ -147,12 +142,12 @@
                     mutation { 
                         signal { 
                             create(input: {
-                                pointId: "${store.point.id}" 
+                                pointId: "${store.pointId}" 
                                 signals: [
                                     {
                                         value: "${valueorTextValue()}" 
                                         unit: ${store.selectedUnit}
-                                        type: "${store.selectedType}"
+                                        type: "${store.typeValue}"
                                     }
                                 ]
                             }) {
@@ -170,17 +165,13 @@
                     body: JSON.stringify({ query: gqlstring })
                 });
             },
-            setPoint(point) {
-                store.point = point;
-                window.sessionStorage.setItem("pointId", store.point.id);
-            },
             setUnit(unit) {
                 store.selectedUnit = unit;
                 window.sessionStorage.setItem("selectedUnit", store.selectedUnit);
             },
             setType(type) {
-                store.selectedType = type;
-                window.sessionStorage.setItem("selectedType", store.selectedType);
+                store.typeValue = type;
+                window.sessionStorage.setItem("typeValue", store.typeValue);
             },
             setValue(value) {
                 store.selectedValue = value;
@@ -190,60 +181,33 @@
                 store.textValue = value;
                 window.sessionStorage.setItem("textValue", store.textValue);
             },
+            setPointName(value) {
+                store.pointName = value;
+                window.sessionStorage.setItem("pointName", store.pointName);
+            },
+            saveSettingsToLocalStorage() {
+                store.tenantId = store.tenantId.replaceAll(" ", "");
+                store.tenantKey = store.tenantKey.replaceAll(" ", "");
+                store.pointId = store.pointId.replaceAll(" ", "");
+                window.localStorage.setItem("tenantId", store.tenantId);
+                window.localStorage.setItem("tenantKey", store.tenantKey);
+                window.localStorage.setItem("pointId", store.pointId);
+            },
         })
 
         store.setUnit(window.sessionStorage.getItem("selectedUnit") || "CELSIUS_DEGREES");
-        store.setType(window.sessionStorage.getItem("selectedType") || "TYPE1");
+        store.setType(window.sessionStorage.getItem("typeValue") || "myCustomType");
         store.setValue(window.sessionStorage.getItem("selectedValue") || "20");
-        store.setTextValue(window.sessionStorage.getItem("textValue") || "");
+        store.setTextValue(window.sessionStorage.getItem("textValue") || "20");
+        store.setPointName(window.sessionStorage.getItem("pointName") || "My device");
         store.tenantId = window.localStorage.getItem("tenantId") || "";
         store.tenantKey = window.localStorage.getItem("tenantKey") || "";
-        store.pointId = window.sessionStorage.getItem("pointId") || "";
+        store.pointId = window.localStorage.getItem("pointId") || "";
 
-
-        const BASE_URL = 'https://iot.dimensionfour.io/graph';
-        if (store.tenantId && store.tenantKey) {
-            getPoints()
-                .then(data => {
-                    store.points = data["data"]["points"]["nodes"];
-                    for (const point of store.points) {
-                        if (point.id == store.pointId) {
-                            store.point = point;
-                        }
-                    }
-                });
-        }
-
-        async function getPoints() {
-            const query = `
-                query {
-                    points { 
-                        nodes {
-                            id
-                            name 
-                        }
-                    }
-                }`;
-            const response = await fetch(BASE_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    "x-tenant-id": store.tenantId,
-                    "x-tenant-key": store.tenantKey
-                },
-                body: JSON.stringify({ query: query })
-            });
-            return response.json();
-        }
         createApp({
-            store,
-            saveSettingsToLocalStorage() {
-                window.localStorage.setItem("tenantId", store.tenantId);
-                window.localStorage.setItem("tenantKey", store.tenantKey);
-            },
+            store
         }).mount()
     </script>
-
 </body>
 
 <script>
@@ -284,4 +248,87 @@
     ]
 </script>
 
+<style>
+    body {
+        background-color: #F4F6F8;
+    }
+
+    .container {
+        max-width: 540px;
+        min-height: 100px;
+    }
+
+    .card {
+        border-radius: 15px;
+    }
+
+    .myButton {
+        background-color: #531DA7;
+        color: white;
+        min-width: 100px;
+        height: 40px;
+        border-radius: 5px;
+        font-family: inherit;
+        font-weight: 500;
+        border-style: none;
+    }
+
+    .myButtonOutlined {
+        background-color: transparent;
+        width: 110px;
+        height: 40px;
+        color: #531DA7;
+        border-color: #531DA7;
+        border-radius: 5px;
+        font-weight: 500;
+        border-style: solid;
+    }
+
+    .form-range::-moz-range-track {
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+        background: #d4c7e9;
+    }
+
+    .form-range::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: white;
+        border: 10px;
+        outline-style: solid;
+        color: #531DA7;
+        cursor: pointer;
+    }
+
+    .logoContainer {
+        position: relative;
+        z-index: 1;
+        top: -20px;
+    }
+
+    .logo {
+        position: absolute;
+        z-index: 2;
+    }
+
+    .logoText {
+        position: absolute;
+        white-space: nowrap;
+        color: #531DA7;
+        z-index: 3;
+        top: 40px;
+        left: 100px;
+    }
+
+    .form-control:hover {
+        border-color: #531DA7;
+        border-width: 2px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #531DA7;
+        box-shadow: inset 0 1px 1px rgba(137, 74, 255, 0.541), 0 0 8px rgba(137, 74, 255, 0.541);
+    }
+</style>
 </html>

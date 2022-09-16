@@ -6,34 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <title>D4 demo-dashboard</title>
+    <title>Demo Dashboard</title>
     <link rel="shortcut icon" type="image/png" href="favicon-16x16.png" />
 </head>
 
 <body>
     <div @mounted="setInterval(function() {store.updateSpacesAndPoints()}, 5000);"></div>
-    <!-- App -->
-    <div class="container" style="max-width: 540px">
-        <!-- Navbar -->
-        <nav class="navbar navbar-light mb-2">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    <img src="d4_logo.svg" alt="" width="60" class="d-inline-block align-text-top me-2">
-                    Demo Dashboard
-                </a>
-                <form class="d-flex">
-                    <button class="btn btn-outline-success" @click.prevent="" data-bs-toggle="modal"
-                        data-bs-target="#exampleModal">Settings</button>
-            </div>
-        </nav>
 
-        <!-- Content -->
+    <!-- Navbar -->
+    <div class="container mt-4">
+        <div class="navbar navbar-light mb-2">
+            <nav class="container-fluid">
+                <div class="logoContainer">
+                    <div class="logo">
+                        <a class="navbar-brand" href="#">
+                            <img src="d4_logo.svg" alt="" width="140" class="d-inline-block">
+                        </a>
+                    </div>
+                    <div class="logoText">
+                        Demo Dashboard
+                    </div>
+                </div>
+                <button class="myButtonOutlined" @click.prevent="" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal">
+                    Settings
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- App -->
+    <div class="container">
         <div class="row mb-2" v-for="space in store.spacesAndPoints" :key="space.id">
             <div class="col">
                 <div class="card">
-                    <div class="card-body" style="background-color: rgb(209, 209, 209);">
+                    <div class="card-body">
                         <h2 class="card-text"> {{ space.name }}</h2>
-
                         <p class="fw-light">{{space.id}}</p>
                         <div class="card" v-for="point in space.points.nodes" :key="point.id">
                             <div class="card-body">
@@ -57,23 +65,25 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+                    <h3 class="modal-title" id="exampleModalLabel">Settings</h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-
-                    <label for="exampleFormControlTextarea1" class="form-label">Tenant-id</label>
-                    <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                        v-model="tenantId"></textarea>
-                    <label for="exampleFormControlTextarea1" class="form-label">Tenant-key</label>
-                    <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
-                        v-model="tenantKey"></textarea>
-
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="tenantIdInput" rows="3" v-model="store.tenantId">
+                        </input>
+                        <label for="tenantIndInput" class="form-label">Tenant-id</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
+                            v-model="store.tenantKey">
+                        </input>
+                        <label for="tenantKeyInput" class="form-label">Tenant-key</label>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" @click="saveSettingsToLocalStorage">Save
-                        changes</button>
+                    <button type="button" class="myButtonOutlined" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="myButton" @click="store.saveSettingsToLocalStorage">Save</button>
                 </div>
             </div>
         </div>
@@ -85,6 +95,8 @@
     <script type="module">
         import { createApp, reactive } from 'https://unpkg.com/petite-vue@0.2.2/dist/petite-vue.es.js'
 
+        const BASE_URL = 'https://iot.dimensionfour.io/graph';
+
         const store = reactive({
             spacesAndPoints: "",
             tenantId: "",
@@ -92,7 +104,7 @@
             count: 0,
             updateSpacesAndPoints: function () {
                 console.log("Updating...");
-                store.getSpacesAndPoints()
+                store.getSpacesAndPointsAndSignals()
                     .then(data => {
                         store.spacesAndPoints = data["data"]["spaces"]["nodes"];
                         for (const a of store.spacesAndPoints) {
@@ -106,7 +118,7 @@
                         }
                     });
             },
-            getSpacesAndPoints: async function () {
+            getSpacesAndPointsAndSignals: async function () {
                 const query = `
                 query {
                     spaces {
@@ -138,34 +150,99 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        "x-tenant-id": tenantId,
-                        "x-tenant-key": tenantKey
+                        "x-tenant-id": store.tenantId,
+                        "x-tenant-key": store.tenantKey
                     },
                     body: JSON.stringify({ query: query })
                 });
                 return response.json();
+            },
+            saveSettingsToLocalStorage() {
+                store.tenantId = store.tenantId.replaceAll(" ", "");
+                store.tenantKey = store.tenantKey.replaceAll(" ", "");
+                window.localStorage.setItem("tenantId", store.tenantId) || "";
+                window.localStorage.setItem("tenantKey", store.tenantKey) || "";
             }
         })
 
-        const BASE_URL = 'https://iot.dimensionfour.io/graph';
-        if (tenantId && tenantKey) {
-            store.updateSpacesAndPoints();
-        }
+        store.tenantId = window.localStorage.getItem("tenantId") || "";
+        store.tenantKey = window.localStorage.getItem("tenantKey") || "";
+        store.updateSpacesAndPoints();
 
         createApp({
-            store,
-            saveSettingsToLocalStorage() {
-                window.localStorage.setItem("tenantId", tenantId) || "";
-                window.localStorage.setItem("tenantKey", tenantKey) || "";
-            }
+            store
         }).mount()
     </script>
 
 </body>
 
-<script>
-    let tenantId = window.localStorage.getItem("tenantId");
-    let tenantKey = window.localStorage.getItem("tenantKey");
-</script>
+<style>
+    body {
+        background-color: #F4F6F8;
+    }
+
+    .container {
+        max-width: 540px;
+        min-height: 100px;
+    }
+
+
+    .card {
+        border-radius: 15px;
+    }
+
+    .myButton {
+        background-color: #531DA7;
+        color: white;
+        min-width: 100px;
+        height: 40px;
+        border-radius: 5px;
+        font-family: inherit;
+        font-weight: 500;
+        border-style: none;
+    }
+
+    .myButtonOutlined {
+        background-color: transparent;
+        width: 110px;
+        height: 40px;
+        color: #531DA7;
+        border-color: #531DA7;
+        border-radius: 5px;
+        font-weight: 500;
+        border-style: solid;
+    }
+
+    .logoContainer {
+        position: relative;
+        z-index: 1;
+        top: -20px;
+    }
+
+    .logo {
+        position: absolute;
+        z-index: 2;
+    }
+
+    .logoText {
+        position: absolute;
+        white-space: nowrap;
+        color: #531DA7;
+        z-index: 3;
+        top: 40px;
+        left: 100px;
+    }
+
+    .form-control:hover {
+        border-color: #531DA7;
+        border-width: 2px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #531DA7;
+        box-shadow: inset 0 1px 1px rgba(137, 74, 255, 0.541), 0 0 8px rgba(137, 74, 255, 0.541);
+    }
+</style>
 
 </html>
